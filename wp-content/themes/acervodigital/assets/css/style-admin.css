@@ -1,0 +1,38 @@
+img.logo-new-admin-bar {
+    width: 80px !important;
+}
+/*Aviso do acervo*/
+.alert-info{
+    background: #0073aa;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.alert-info.media-new{
+    margin-bottom: 15px;
+}
+
+.alert-info.grid-mode {
+    margin: 20px 50px 0 20px;
+}
+/*Cabeçalho do acf*/
+
+.acf-fc-layout-handle {
+    background: #01295c !important;
+    color: #fff !important;
+}
+
+/* Aviso remoção arquivo */
+.acf-field.hide-message .description{
+    display: none;
+    padding: 10px;
+    background: red;
+    color: #FFFFFF;
+    border-radius: 5px;
+}
+
+.acf-field.hide-message .description a{
+    color: #FFFFFF;
+}
