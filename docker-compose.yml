@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+    acervo:
+        restart: always
+        env_file:
+            - ../env_acervo
+        container_name: acervo
+        ports:
+            - '8081:80'
+        volumes:
+            - '../nfs/acervo-dev/uploads:/var/www/html/wp-content/uploads'
+            - '../nfs/acervo-dev/plugins:/var/www/html/wp-content/plugins'
+            - '../nfs/acervo-dev/wflogs:/var/www/html/wp-content/wflogs'
+            - '../nfs/acervo-dev/videos:/var/www/html/wp-content/videos'
+            - '../nfs/acervo-dev/upgrade:/var/www/html/wp-content/upgrade'
+            - '../nfs/acervo-dev/locationmatch:/etc/apache2/locationmatch/location_match.modsecurity'
+        image: wordpress/acervo
+        build: 
+            dockerfile: ./Dockerfile
+            context: . 
