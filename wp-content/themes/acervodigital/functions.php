@@ -639,16 +639,18 @@ function count_acervo_download() {
     wp_send_json_error(['error']);
 }
 
-add_filter('wp_get_attachment_url', function ($url, $post_id) {
+add_filter('rest_prepare_attachment', function ($response, $post, $request) {
 
-    if (is_object($url)) {
-        error_log('PDF URL retornou objeto - attachment ID: ' . $post_id);
-        error_log(print_r($url, true));
+    $data = $response->get_data();
 
-        // evita quebrar o REST
-        return '';
-    }
+    array_walk_recursive($data, function ($value, $key) {
+        if (is_object($value)) {
+            error_log('OBJETO ENCONTRADO NO REST MEDIA');
+            error_log('KEY: ' . $key);
+            error_log(print_r($value, true));
+        }
+    });
 
-    return $url;
+    return $response;
 
-}, 999, 2);
+}, 999, 3);
