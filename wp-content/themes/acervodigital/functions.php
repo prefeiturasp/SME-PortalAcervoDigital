@@ -638,3 +638,17 @@ function count_acervo_download() {
     // caso tenha erro retorna a mensagem
     wp_send_json_error(['error']);
 }
+
+add_filter('wp_get_attachment_url', function ($url, $post_id) {
+
+    if (is_object($url)) {
+        error_log('PDF URL retornou objeto - attachment ID: ' . $post_id);
+        error_log(print_r($url, true));
+
+        // evita quebrar o REST
+        return '';
+    }
+
+    return $url;
+
+}, 999, 2);
