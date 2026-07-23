@@ -83,7 +83,7 @@ RUN mkdir -p /etc/modsecurity/crs/dos
 COPY modsecurity/owasp-crs.conf /usr/share/modsecurity-crs/owasp-crs.load
 
 # Adiciona diretório do APM ao open_basedir
-RUN sed -i 's|:/proc/1/fd:/opt/elastic|:/proc/1/fd:/proc/self:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
+RUN sed -i '/open_basedir\]/ s|$|:/proc/self:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
 
 RUN rm -Rf phpconf modsecurity
 
