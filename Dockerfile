@@ -46,6 +46,18 @@ ENV PHP_MAX_EXECUTION_TIME="120"
 
 # ==========================================================
 
+## Instalação do APM Agent
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG APM_AGENT_VERSION=1.17.0
+
+RUN curl -L -O https://github.com/elastic/apm-agent-php/releases/download/v${APM_AGENT_VERSION}/apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && dpkg -i apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && rm apm-agent-php_${APM_AGENT_VERSION}_amd64.deb
+
 # You can easily change PHP-FPM configurations
 # by using pre-defined Docker's environment variables.
 # Learn more: https://code.shin.company/php#customize-docker-image
