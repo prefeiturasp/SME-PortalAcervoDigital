@@ -82,6 +82,9 @@ RUN mkdir -p /etc/modsecurity/crs/dos
 #load crs
 COPY modsecurity/owasp-crs.conf /usr/share/modsecurity-crs/owasp-crs.load
 
+# Adiciona diretório do APM ao open_basedir
+RUN sed -i 's|\(open_basedir\] = .*\)|\1:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
+
 RUN rm -Rf phpconf modsecurity
 
 ENTRYPOINT [ "/usr/local/bin/docker-php-entrypoint" ]
