@@ -45,6 +45,17 @@ ENV AUTO_CREATE_INDEX_FILE="false"
 ENV PHP_MAX_EXECUTION_TIME="120"
 
 # ==========================================================
+## Instalação do APM Agent
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG APM_AGENT_VERSION=1.17.0
+
+RUN curl -L -O https://github.com/elastic/apm-agent-php/releases/download/v${APM_AGENT_VERSION}/apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && dpkg -i apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && rm apm-agent-php_${APM_AGENT_VERSION}_amd64.deb
 
 # You can easily change PHP-FPM configurations
 # by using pre-defined Docker's environment variables.
@@ -69,6 +80,9 @@ RUN mkdir -p /etc/modsecurity/crs/before && mkdir -p /etc/modsecurity/crs/after
 RUN mkdir -p /etc/modsecurity/crs/dos
 #load crs
 COPY modsecurity/owasp-crs.conf /usr/share/modsecurity-crs/owasp-crs.load
+
+# Adiciona diretório do APM ao open_basedir
+RUN sed -i '/open_basedir\]/ s|$|:/proc/self:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
 
 RUN rm -Rf phpconf modsecurity
 
