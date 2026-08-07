@@ -7,6 +7,10 @@
 # at least /command, /usr/bin and /bin in its PATH.
 set -e
 
+# Enable Redis Object Cache
+cp /var/www/html/wp-content/plugins/redis-cache/includes/object-cache.php /var/www/html/wp-content/object-cache.php
+chown www-data:www-data /var/www/html/wp-content/object-cache.php
+
 mkdir -p /run/apache2/modsecurity/data
 mkdir -p /run/apache2/modsecurity/tmp
 envsubst < /etc/modsecurity/modsecurity.template > /etc/modsecurity/modsecurity.conf

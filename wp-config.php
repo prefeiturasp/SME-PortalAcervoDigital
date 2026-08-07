@@ -84,6 +84,15 @@ define( 'NONCE_SALT',       getenv('WORDPRESS_NONCE_SALT') );
  * a unique prefix. Only numbers, letters, and underscores please!
  */
 $table_prefix = getenv('WORDPRESS_TABLE_PREFIX');
+
+/** Configura as vareiaveis para cache */
+define('WP_REDIS_HOST', 		getenv('KEYDB_HOST'));
+define('WP_REDIS_PORT', 		getenv('KEYDB_PORT'));
+define('WP_REDIS_TIMEOUT', 		getenv('KEYDB_TIMEOUT'));
+define('WP_REDIS_READ_TIMEOUT', getenv('KEYDB_READ_TIMEOUT'));
+define('WP_REDIS_DATABASE', 	getenv('KEYDB_DB'));
+define('WP_REDIS_PREFIX', 		getenv('KEYDB_PREFIX'));
+
 /**
  * For developers: WordPress debugging mode.
  *
