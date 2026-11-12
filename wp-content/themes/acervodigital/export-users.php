@@ -3,13 +3,14 @@ require_once("../../../wp-load.php");
 $date = date('d_m_y_h_i_s');
 $fileName = $date . '_usuarios_acervo.xlsx';
  
-if($_GET['funcao'] == 'all'){
+$funcao = isset($_GET['funcao']) && is_string($_GET['funcao']) ? $_GET['funcao'] : 'all';
+if($funcao == 'all'){
 	$blogusers = get_users( array( 'fields' => array( 'id', 'user_login', 'user_email' ) ) );
 } else {
 	$blogusers = get_users( 
 		array( 
 			'fields' => array( 'id', 'user_login', 'user_email' ),
-			'role__in' => array( $_GET['funcao'] )
+			'role__in' => array( $funcao )
 		)
 	);
 }
@@ -42,9 +43,12 @@ function convertFunc($funcao){
 
 foreach($blogusers as $user){
 	$user_meta = get_userdata($user->id);
+	if (!$user_meta) {
+		continue;
+	}
 	$user_roles = $user_meta->roles;
 	$setor = get_field('setor', 'user_'. $user->id );	
-	$func = $user_roles[0];
+	$func = $user_roles[0] ?? '';
 
 	if($setor == '')
 		$setor = '<center>-</center>';
