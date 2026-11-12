@@ -1,22 +1,23 @@
+<?php $acervo_filters = acervo_query_params(); ?>
 <p><strong>Filtros</strong></p>
 <form method="get" class="text-left" action="<?php echo esc_url( home_url( '/acervo' ) ) ?>">
 	<fieldset>
-		<input type="hidden" name="s" class="form-control" value="<?php echo $_GET["s"] ?>"/>
+		<input type="hidden" name="s" class="form-control" value="<?php echo $acervo_filters["s"] ?>"/>
 		<div class="mt-3 mb-3">
 			<label for="type"><strong>Categoria:</strong></label>
 			<select id="type" name="categoria_acervo" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 			   <?php $project_types = get_categories('taxonomy=categoria_acervo'); ?>
-			   <option value="<?php echo $_GET["categoria_acervo"] ?>">
+			   <option value="<?php echo $acervo_filters["categoria_acervo"] ?>">
 				   <?php
-				   $cat = $_GET["categoria_acervo"];
+				   $cat = $acervo_filters["categoria_acervo"];
 				   $catCorrigida = str_replace('-', ' ', $cat);
-					if($_GET["categoria_acervo"] != ''){
+					if($acervo_filters["categoria_acervo"] != ''){
 						echo $catCorrigida;
 					}else{ echo 'Selecione a categoria';}  ?>
 			</option>
 			   <?php foreach ($project_types as $project_type) { ?>
 					<?php
-						if($project_type->slug != $_GET["categoria_acervo"]){
+						if($project_type->slug != $acervo_filters["categoria_acervo"]){
 							echo '<option value="'.$project_type->slug.'">'.$project_type->name.'</option>';
 						}
 					?>
@@ -26,10 +27,10 @@
 		<?php /*?><div class="mt-3 mb-3">
 			<label for="type"><strong>Ano de publicação</strong></label>
 			<select id="ano_select_box" name="ano_da_publicacao_acervo_digital" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
-				<option value="<?php echo $_GET["ano_da_publicacao_acervo_digital"] ?>">
+				<option value="<?php echo $acervo_filters["ano_da_publicacao_acervo_digital"] ?>">
 				   <?php
-					if($_GET["ano_da_publicacao_acervo_digital"] != ''){
-						echo $_GET["ano_da_publicacao_acervo_digital"];
+					if($acervo_filters["ano_da_publicacao_acervo_digital"] != ''){
+						echo $acervo_filters["ano_da_publicacao_acervo_digital"];
 					}else{ echo 'Selecione o ano';}  ?>
 				</option>
 				<?php
@@ -50,10 +51,10 @@
 		<div class="mt-3 mb-3">
 			<label for="type"><strong>Ano de publicação</strong></label>
 			<select id="ano_select_box" name="ano_da_publicacao_acervo_digital" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
-				<option value="<?php echo $_GET["ano_da_publicacao_acervo_digital"] ?>">
+				<option value="<?php echo $acervo_filters["ano_da_publicacao_acervo_digital"] ?>">
 				   <?php
-					if($_GET["ano_da_publicacao_acervo_digital"] != ''){
-						echo $_GET["ano_da_publicacao_acervo_digital"];
+					if($acervo_filters["ano_da_publicacao_acervo_digital"] != ''){
+						echo $acervo_filters["ano_da_publicacao_acervo_digital"];
 					}else{ echo 'Selecione o ano';}  ?>
 				</option>
 				  <option value="2020">2020</option>
@@ -90,17 +91,17 @@
 			<label for="type"><strong>Idioma:</strong></label>
 			<select id="type" name="idioma" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 			   <?php $project_types = get_categories('taxonomy=idioma'); ?>
-			   <option value="<?php echo $_GET["idioma"] ?>">
+			   <option value="<?php echo $acervo_filters["idioma"] ?>">
 				   <?php
-				   $cat = $_GET["idioma"];
+				   $cat = $acervo_filters["idioma"];
 				   $catCorrigida = str_replace('-', ' ', $cat);
-					if($_GET["idioma"] != ''){
+					if($acervo_filters["idioma"] != ''){
 						echo $catCorrigida;
 					}else{ echo 'Selecione o idioma';}  ?>
 			</option>
 			   <?php foreach ($project_types as $project_type) { ?>
 					<?php
-						if($project_type->slug != $_GET["idioma"]){
+						if($project_type->slug != $acervo_filters["idioma"]){
 							echo '<option value="'.$project_type->slug.'">'.$project_type->name.'</option>';
 						}
 					?>
@@ -111,17 +112,17 @@
 			<label for="type"><strong>Autor:</strong></label>
 			<select id="type" name="autor" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 			   <?php $project_types = get_categories('taxonomy=autor'); ?>
-			   <option value="<?php echo $_GET["autor"] ?>">
+			   <option value="<?php echo $acervo_filters["autor"] ?>">
 				   <?php
-				   $cat = $_GET["autor"];
+				   $cat = $acervo_filters["autor"];
 				   $catCorrigida = str_replace('-', ' ', $cat);
-					if($_GET["autor"] != ''){
+					if($acervo_filters["autor"] != ''){
 						echo $catCorrigida;
 					}else{ echo 'Selecione o autor';}  ?>
 			</option>
 			   <?php foreach ($project_types as $project_type) { ?>
 					<?php
-						if($project_type->slug != $_GET["autor"]){
+						if($project_type->slug != $acervo_filters["autor"]){
 							echo '<option value="'.$project_type->slug.'">'.$project_type->name.'</option>';
 						}
 					?>
@@ -132,17 +133,17 @@
 			<label for="type"><strong>Setor:</strong></label>
 			<select id="type" name="setor" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 			   <?php $project_types = get_categories('taxonomy=setor'); ?>
-			   <option value="<?php echo $_GET["setor"] ?>">
+			   <option value="<?php echo $acervo_filters["setor"] ?>">
 				   <?php
-				   $cat = $_GET["setor"];
+				   $cat = $acervo_filters["setor"];
 				   $catCorrigida = str_replace('-', ' ', $cat);
-					if($_GET["setor"] != ''){
+					if($acervo_filters["setor"] != ''){
 						echo $catCorrigida;
 					}else{ echo 'Selecione o setor';}  ?>
 			</option>
 			   <?php foreach ($project_types as $project_type) { ?>
 					<?php
-						if($project_type->slug != $_GET["setor"]){
+						if($project_type->slug != $acervo_filters["setor"]){
 							echo '<option value="'.$project_type->slug.'">'.$project_type->name.'</option>';
 						}
 					?>

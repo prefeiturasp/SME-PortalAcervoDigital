@@ -25,7 +25,7 @@ class AcervoRegisterCustomTaxonomy
 		
 		// Verifica a capabily do usuário logado
 		$current_capability_user = wp_get_current_user();
-		$this->capabily = $current_capability_user->roles[0];	
+		$this->capabily = $current_capability_user->roles[0] ?? '';
 
 		//registrando o action do custom post type
 		add_action( 'init', array( $this, 'register_taxonomy' ) );

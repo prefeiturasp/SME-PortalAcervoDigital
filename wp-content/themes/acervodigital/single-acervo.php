@@ -26,8 +26,8 @@ function generateRandomString($length = 10) {
 						'order' => 'ASC'
 					);
 
-					$file = get_field('arquivo_acervo_digital');
-					$stringSeparada = explode(".", $file['filename']);
+					$file = acervo_file_field(get_field('arquivo_acervo_digital'));
+					$extension = acervo_file_extension($file['filename'] ?? '');
 					$capa = get_field('substituir_capa_acervo_digital');
 					$type = get_post_type();
 					$postid = get_the_ID();
@@ -64,7 +64,7 @@ function generateRandomString($length = 10) {
 					<div class="infos mt-3 d-flex justify-content-between">
 						<p>
 							<?php 
-								$categories = get_the_terms(get_the_ID(), 'categoria_acervo' );
+								$categories = acervo_term_list(get_the_terms(get_the_ID(), 'categoria_acervo' ));
 								$n = 0;
 								foreach($categories as $categoria){
 									if($n == 0){
@@ -83,25 +83,25 @@ function generateRandomString($length = 10) {
 
 					<div class="mask-detail">
 						<img src="<?php
-							  if(!$capa && $stringSeparada[1] == 'pdf'){
-								 echo $file['icon']; 
-							  }else if(!$capa && ($stringSeparada[1] == 'xlsx' || $stringSeparada[1] == 'xls' || $stringSeparada[1] == 'csv') ){
+							  if(!$capa && $extension == 'pdf'){
+								 echo ($file['icon'] ?? '');
+							  }else if(!$capa && ($extension == 'xlsx' || $extension == 'xls' || $extension == 'csv') ){
 								echo esc_url(
 									get_field('img_excel', 'placeholders')['url'] 
-									?? get_field('img_padrao', 'placeholders')['url']
+									?? get_field('img_padrao', 'placeholders')['url'] ?? ''
 								);
-							  }else if(!$capa && ($stringSeparada[1] == 'docx' || $stringSeparada[1] == 'doc') ){
+							  }else if(!$capa && ($extension == 'docx' || $extension == 'doc') ){
 								echo esc_url(
 									get_field('img_doc', 'placeholders')['url'] 
-									?? get_field('img_padrao', 'placeholders')['url']
+									?? get_field('img_padrao', 'placeholders')['url'] ?? ''
 								);
-							  }else if(!$capa && ($stringSeparada[1] == 'pptx' || $stringSeparada[1] == 'ppt') ){
+							  }else if(!$capa && ($extension == 'pptx' || $extension == 'ppt') ){
 								echo esc_url(
 									get_field('img_doc', 'placeholders')['url'] 
-									?? get_field('img_padrao', 'placeholders')['url']
+									?? get_field('img_padrao', 'placeholders')['url'] ?? ''
 								);
-							  }else if(!$capa && ($stringSeparada[1] == 'jpg' || $stringSeparada[1] == 'jpeg' || $stringSeparada[1] == 'png' || $stringSeparada[1] == 'gif' || $stringSeparada[1] == 'webp') ){
-								echo $file['url'];
+							  }else if(!$capa && ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif' || $extension == 'webp') ){
+								echo ($file['url'] ?? '');
 							  }else if(get_field('substituir_capa_acervo_digital') != ''){
 								 echo get_field('substituir_capa_acervo_digital'); 
 							  }else{
@@ -110,11 +110,11 @@ function generateRandomString($length = 10) {
 							  ?>" alt="<?php the_field('campo_alt_acervo_digital'); ?>" class='shadow-sm img-mobile'>
 					</div>
 					<?php 
-						if($file['url'] != ''){
-							$url = $file['url']; 
+						if(($file['url'] ?? '') != ''){
+							$url = ($file['url'] ?? '');
 						} elseif($partional){
 							$url = $partional[0];
-							$stringSeparada = explode(".", $url);
+							$extension = acervo_file_extension($url);
 						}else{
 							$url = false;
 						}
@@ -122,7 +122,7 @@ function generateRandomString($length = 10) {
 					
 						<button type="button" class="btn btn-view mb-2" data-acervoid="<?= get_the_ID(); ?>"  data-toggle="modal" data-target=".<?php echo $class; ?>"><i class="fa fa-search" aria-hidden="true"></i> Visualizar</button>
 					
-						<?php if($stringSeparada[1] == 'jpg' || $stringSeparada[1] == 'jpeg' || $stringSeparada[1] == 'png' || $stringSeparada[1] == 'gif' || $stringSeparada[1] == 'webp') : ?>
+						<?php if($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif' || $extension == 'webp') : ?>
 				
 							<div class="modal <?php echo $class; ?>" tabindex="-1" role="dialog">
 								<div class="modal-dialog" role="document">
@@ -144,7 +144,7 @@ function generateRandomString($length = 10) {
 								</div>
 							</div>
 
-						<?php elseif($stringSeparada[1] == 'pdf'): ?>
+						<?php elseif($extension == 'pdf'): ?>
 
 							<div class="modal fade bd-example-modal-lg <?php echo $class; ?>" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
 								<div class="modal-dialog modal-xl">
@@ -199,9 +199,9 @@ function generateRandomString($length = 10) {
 						<?php endif; ?>
 
 					<?php
-						if($file['url'] != ''){
+						if(($file['url'] ?? '') != ''){
 							?>
-							<a href="<?php echo $file['url']; ?>" id="download_link" target="_blank" download>
+							<a href="<?php echo ($file['url'] ?? ''); ?>" id="download_link" target="_blank" download>
 								<button type="button" class="btn btn-down btn-primary mb-2 btn-down-count" data-acervoid="<?= get_the_ID(); ?>"><i class="fa fa-download" aria-hidden="true"></i> Baixar documento</button>
 							</a>
 							<?php
@@ -253,7 +253,7 @@ function generateRandomString($length = 10) {
 					
 					if($getPrev == ''){
 						// Qtd Visualizações					
-						function title_filter_total( $where, &$wp_query ){
+						function title_filter_total( $where, $wp_query ){
 							global $wpdb;
 							if ( $search_term = $wp_query->get( 'search_prod_title' ) ) {
 								$where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'' . esc_sql( like_escape( $search_term ) ) . '\'';
@@ -299,7 +299,7 @@ function generateRandomString($length = 10) {
 					}
 
 					$allItens = array();
-					$allItens['categoria'] = get_the_terms(get_the_ID(), 'categoria_acervo' ); // Categorias
+					$allItens['categoria'] = acervo_term_list(get_the_terms(get_the_ID(), 'categoria_acervo' )); // Categorias
 					$allItens['modalidade'] = get_field('modalidade_acervo_digital'); // Modalidade
 					$allItens['componente'] = get_field('componente_acervo_digital'); // Componente
 					$allItens['qt_paginas'] = get_field('qt_de_paginas_acervo_digital'); // Componente
@@ -323,21 +323,21 @@ function generateRandomString($length = 10) {
 					if($partional && !$file){
 						$formats = array();
 						foreach($partional as $format){
-							$format = explode(".", $format);
-							$formats[] = $format[6];											
+							$format = acervo_file_extension($format);
+							$formats[] = $format;
 						}
 						// Remover formatos duplicados
 						$formats = array_unique($formats);
 						$allItens['tipo'] = implode(", ", $formats);						
 					}
-					elseif($stringSeparada[1] != ''){
-						$allItens['tipo'] = $stringSeparada[1];
+					elseif($extension != ''){
+						$allItens['tipo'] = $extension;
 					}else{
 						$allItens['tipo'] = 'DIVERSOS';
 					}
 					// Tamanho
-					if( $file['filesize']  != ''){
-						$allItens['tamanho'] = size_format( $file['filesize'] );
+					if( ($file['filesize'] ?? '')  != ''){
+						$allItens['tamanho'] = size_format( ($file['filesize'] ?? '') );
 					}else{
 						$allItens['tamanho'] = 'INDEFINIDO';
 					}
@@ -356,7 +356,7 @@ function generateRandomString($length = 10) {
 							<div class="infos mt-3 d-flex justify-content-between">
 								<p class='d-none d-lg-block d-xl-block'>
 									<?php 
-										$categories = get_the_terms(get_the_ID(), 'categoria_acervo' );
+										$categories = acervo_term_list(get_the_terms(get_the_ID(), 'categoria_acervo' ));
 										$n = 0;
 										foreach($categories as $categoria){
 											if($n == 0){
@@ -404,7 +404,7 @@ function generateRandomString($length = 10) {
 												$contador = 0;
 												foreach($allItens as $chave => $item){
 														
-													if($allItens[$chave] != '' || $allItens[$chave][0] != ''){
+													if($item !== null && $item !== false && $item !== '' && $item !== array()){
 														$contador++;
 
 														if($chave == 'categoria'): ?>
@@ -681,7 +681,7 @@ function generateRandomString($length = 10) {
 											<?php endif; ?>
 
 											<?php 
-												$palavras = get_the_terms(get_the_ID(), 'palavra' );
+												$palavras = acervo_term_list(get_the_terms(get_the_ID(), 'palavra' ));
 												if($palavras != '' || $palavras[0] != ''):
 											?>
 																								

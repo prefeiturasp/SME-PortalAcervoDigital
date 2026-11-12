@@ -36,11 +36,12 @@ class WPDocs_Options_Page {
     function conteudo_tutorial() {
 		echo '<hr>';
 		$user = wp_get_current_user();
-		$funcao = $user->roles[0];		
+		$funcao = $user->roles[0] ?? '';
 		if( have_rows('cadastro_de_tutoriais','option') ):
 			while ( have_rows('cadastro_de_tutoriais','option') ) : the_row();
 				$perfis = get_sub_field('perfil');
-				if( in_array($funcao, $perfis) || $perfis[0] == ''):
+				$perfis = is_array($perfis) ? $perfis : array();
+				if( in_array($funcao, $perfis) || ($perfis[0] ?? '') == ''):
 			?>
 					<div style="width: 30%; display: inline-grid; padding: 10px; text-align: center; margin: 5px; border: solid 1px #000; height: 350px; overflow-y: scroll;">
 							<h3><?php the_sub_field('nome_tutorial'); ?></h3>

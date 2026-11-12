@@ -124,7 +124,7 @@ add_filter( 'login_headertitle', 'my_login_logo_url_title' );
 //remover opções de cores do perfil de usuários
 function admin_color_scheme() {
    global $_wp_admin_css_colors;
-   $_wp_admin_css_colors = 0;
+   $_wp_admin_css_colors = array();
 }
 add_action('admin_head', 'admin_color_scheme');
 

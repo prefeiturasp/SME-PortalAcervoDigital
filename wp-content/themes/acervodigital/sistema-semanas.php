@@ -59,8 +59,8 @@ $articles = get_posts(
   'post_type' => $posttype,
     'date_query' => array(
       [
-            'after'=>   $_GET['initialdate'],
-            'before' => $_GET['finaldate'],
+            'after'=>   isset($_GET['initialdate']) && is_string($_GET['initialdate']) ? $_GET['initialdate'] : '',
+            'before' => isset($_GET['finaldate']) && is_string($_GET['finaldate']) ? $_GET['finaldate'] : '',
              'inclusive' => true, 
        ] 
     )

@@ -28,7 +28,7 @@ $post_slug = $post->post_name;
 //banner
 if(get_field('fx_flex_habilitar_banner') != null){
 	$imagem_banner = get_field('fx_flex_banner');//Pega todos os valores da imagem no array
-	echo '<div class="bn_fx_banner"><img src="'.$imagem_banner['url'].'" width="100%" alt="'.$imagem_banner['alt'].'"></div>';
+	echo '<div class="bn_fx_banner"><img src="'.($imagem_banner['url'] ?? '').'" width="100%" alt="'.($imagem_banner['alt'] ?? '').'"></div>';
 }
 		
 if( have_rows('fx_flex_layout') ):
@@ -45,10 +45,10 @@ if( have_rows('fx_flex_layout') ):
 					
 		        	//conteudo flexivel 1 coluna
 					if( have_rows('fx_coluna_1_1') ):
-						echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+						echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 						echo '<div class="container-fluid">';//bootstrap container
 						echo '<div class="row">';//bootstrap row
-						echo '<div class="col-sm-12 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-12 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_1') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_1' ):
@@ -57,12 +57,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_1_1');
 									$ali_h = get_sub_field('alinhar_h_construtor_1_1');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_1').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_1').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_1').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_1').'</h2>';
 									}else{
-										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_1').'</h1>';
+										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_1').'</h1>';
 									}
 									echo '</div>';
 								//editor Wysiwyg
@@ -102,7 +102,7 @@ if( have_rows('fx_flex_layout') ):
 								elseif( get_row_layout() == 'fx_cl1_imagem_1_1' ): 
 									echo "<div class='container'>";
 									$imagem_1_1 = get_sub_field('fx_imagem_1_1');//Pega todos os valores da imagem no array
-									echo '<img src="'.$imagem_1_1['url'].'" width="100%" alt="'.$imagem_1_1['alt'].'">';
+									echo '<img src="'.($imagem_1_1['url'] ?? '').'" width="100%" alt="'.($imagem_1_1['alt'] ?? '').'">';
 									echo "</div>";
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_1_1' ): 		
@@ -168,7 +168,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_1' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_1').'"><button type="button" class="btn bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_1').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_1').'"><button type="button" class="btn bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_1').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -221,7 +221,7 @@ if( have_rows('fx_flex_layout') ):
 											echo "<div class='col-sm-12 categ-title'><p>" . $titulo . "</p></div>";
 										}
 
-										$categorias = get_sub_field('fx_categorias_1_1');
+										$categorias = acervo_term_list(get_sub_field('fx_categorias_1_1'));
 									
 										foreach( $categorias as $categoria ):
 											$termo = get_term( $categoria, 'categoria_acervo' );											
@@ -267,12 +267,12 @@ if( have_rows('fx_flex_layout') ):
 					$link = get_sub_field('fx_cor_do_link_coluna_1_1');
 					$colorbtn = get_sub_field('fx_cor_do_botao_coluna_1_1');
 					
-					echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+					echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 					echo '<div class="container">';//bootstrap container
 					echo '<div class="row">';//bootstrap row
 		        	//conteudo flexivel 2 colunas esquerda
 					if( have_rows('fx_coluna_1_2') ):
-						echo '<div class="col-sm-6 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-6 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_2') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_2' ):
@@ -280,12 +280,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_1_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_1_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h2>';
 									}else{
-										echo '<h2 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h2>';
+										echo '<h2 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h2>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_1_2' ): 
@@ -317,7 +317,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_1_2' ): 
 									$imagem_1_2 = get_sub_field('fx_imagem_1_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_1_2['url'].'" width="100%" alt="'.$imagem_1_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_1_2['url'] ?? '').'" width="100%" alt="'.($imagem_1_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_1_2' ): 		
 									if(get_sub_field('fx_abas_1_2'))://repeater
@@ -379,7 +379,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -394,7 +394,7 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 2 colunas direita
 					if( have_rows('fx_coluna_2_2') ):
-						echo '<div class="col-sm-6 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-6 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_2_2') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_2_2' ):
@@ -402,12 +402,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_2_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_2_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h2>';
 									}else{
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_2_2' ): 
@@ -439,7 +439,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_2_2' ): 
 									$imagem_2_2 = get_sub_field('fx_imagem_2_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_2_2['url'].'" width="100%" alt="'.$imagem_2_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_2_2['url'] ?? '').'" width="100%" alt="'.($imagem_2_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_2_2' ): 		
 									if(get_sub_field('fx_abas_2_2'))://repeater
@@ -501,7 +501,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_2_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -527,16 +527,16 @@ if( have_rows('fx_flex_layout') ):
 					$link = get_sub_field('fx_cor_do_link_coluna_1_1');
 					$colorbtn = get_sub_field('fx_cor_do_botao_coluna_1_1');
 					
-					echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+					echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 					echo '<div class="container">';//bootstrap container
 					echo '<div class="row">';//bootstrap row
 		        	//conteudo flexivel 3 colunas (primeira coluna)
 					if( have_rows('fx_coluna_1_3') ):
-						echo '<div class="col-sm-4 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-4 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_3') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_3' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_3').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_3').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_1_3' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_1_3').'</div>';
@@ -556,7 +556,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_3' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_3').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_3').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -571,11 +571,11 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 3 colunas (segunda coluna)
 					if( have_rows('fx_coluna_2_3') ):
-						echo '<div class="col-sm-4 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-4 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_2_3') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_2_3' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_3').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_3').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_2_3' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_2_3').'</div>';
@@ -595,7 +595,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_2_3' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_2_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_3').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_2_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_3').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -611,11 +611,11 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 3 colunas (terceira coluna)
 					if( have_rows('fx_coluna_3_3') ):
-						echo '<div class="col-sm-4 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-4 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_3_3') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_3_3' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_3_3').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_3_3').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_3_3' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_3_3').'</div>';
@@ -635,7 +635,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_3_3' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_3_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_3_3').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_3_3').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_3_3').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -661,16 +661,16 @@ if( have_rows('fx_flex_layout') ):
 					$link = get_sub_field('fx_cor_do_link_coluna_1_1');
 					$colorbtn = get_sub_field('fx_cor_do_botao_coluna_1_1');
 					
-					echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+					echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 					echo '<div class="container">';//bootstrap container
 					echo '<div class="row">';//bootstrap row
 		        	//conteudo flexivel 4 colunas (primeira coluna)
 					if( have_rows('fx_coluna_1_4') ):
-						echo '<div class="col-sm-3 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-3 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_4') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_4' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_4').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_4').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_1_4' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_1_4').'</div>';
@@ -690,7 +690,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_4' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_4').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_4').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -705,11 +705,11 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 4 colunas (segunda coluna)
 					if( have_rows('fx_coluna_2_4') ):
-						echo '<div class="col-sm-3 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-3 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_2_4') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_2_4' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_4').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_4').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_2_4' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_2_4').'</div>';
@@ -729,7 +729,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_2_4' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_2_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_4').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_2_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_4').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -745,11 +745,11 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 4 colunas (terceira coluna)
 					if( have_rows('fx_coluna_3_4') ):
-						echo '<div class="col-sm-3 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-3 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_3_4') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_3_4' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_3_4').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_3_4').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_3_4' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_3_4').'</div>';
@@ -769,7 +769,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_3_4' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_3_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_3_4').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_3_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_3_4').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -784,11 +784,11 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 4 colunas (quarta coluna)
 					if( have_rows('fx_coluna_4_4') ):
-						echo '<div class="col-sm-3 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-3 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_4_4') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_4_4' ):
-									echo '<h2 class="mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_4_4').'</h2>';
+									echo '<h2 class="mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_4_4').'</h2>';
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_4_4' ): 
 									echo '<div class="mt-3 mb-3">'.get_sub_field('fx_editor_4_4').'</div>';
@@ -808,7 +808,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_4_4' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_4_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_4_4').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_4_4').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_4_4').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -836,13 +836,13 @@ if( have_rows('fx_flex_layout') ):
 					$link = get_sub_field('fx_cor_do_link_coluna_1_1');
 					$colorbtn = get_sub_field('fx_cor_do_botao_coluna_1_1');
 					
-					echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+					echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 					echo '<div class="container">';//bootstrap container
 					echo '<div class="row">';//bootstrap row
 		        	//conteudo flexivel 2 colunas esquerda
 					if( have_rows('fx_coluna_1_1b3') ):
 
-						echo '<div class="col-sm-4 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-4 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_1b3') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_2' ):
@@ -850,12 +850,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_1_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_1_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h2>';
 									}else{
-										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h1>';
+										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h1>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_1_2' ): 
@@ -887,7 +887,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_1_2' ): 
 									$imagem_1_2 = get_sub_field('fx_imagem_1_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_1_2['url'].'" width="100%" alt="'.$imagem_1_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_1_2['url'] ?? '').'" width="100%" alt="'.($imagem_1_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_1_2' ): 		
 									if(get_sub_field('fx_abas_1_2'))://repeater
@@ -949,7 +949,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -964,7 +964,7 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 2 colunas direita
 					if( have_rows('fx_coluna_2_1b3') ):
-						echo '<div class="col-sm-8 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-8 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_2_1b3') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_2_2' ):
@@ -972,12 +972,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_2_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_2_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h2>';
 									}else{
-										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_2_2' ): 
@@ -1009,7 +1009,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_2_2' ): 
 									$imagem_2_2 = get_sub_field('fx_imagem_2_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_2_2['url'].'" width="100%" alt="'.$imagem_2_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_2_2['url'] ?? '').'" width="100%" alt="'.($imagem_2_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_2_2' ): 		
 									if(get_sub_field('fx_abas_2_2'))://repeater
@@ -1071,7 +1071,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_2_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -1098,13 +1098,13 @@ if( have_rows('fx_flex_layout') ):
 					$link = get_sub_field('fx_cor_do_link_coluna_1_1');
 					$colorbtn = get_sub_field('fx_cor_do_botao_coluna_1_1');
 					
-					echo '<div class="bg_fx_'.$background['value'].' lk_fx_'.$link['value'].' fx_all">';//fundo e link
+					echo '<div class="bg_fx_'.($background['value'] ?? '').' lk_fx_'.($link['value'] ?? '').' fx_all">';//fundo e link
 					echo '<div class="container">';//bootstrap container
 					echo '<div class="row">';//bootstrap row
 		        	//conteudo flexivel 2 colunas esquerda
 					if( have_rows('fx_coluna_1_3b1') ):
 
-						echo '<div class="col-sm-8 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-8 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_1_3b1') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_1_2' ):
@@ -1112,12 +1112,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_1_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_1_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h2>';
 									}else{
-										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_1_2').'</h1>';
+										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_1_2').'</h1>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_1_2' ): 
@@ -1149,7 +1149,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_1_2' ): 
 									$imagem_1_2 = get_sub_field('fx_imagem_1_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_1_2['url'].'" width="100%" alt="'.$imagem_1_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_1_2['url'] ?? '').'" width="100%" alt="'.($imagem_1_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_1_2' ): 		
 									if(get_sub_field('fx_abas_1_2'))://repeater
@@ -1211,7 +1211,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_1_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_1_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_1_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;
@@ -1226,7 +1226,7 @@ if( have_rows('fx_flex_layout') ):
 		
 					//conteudo flexivel 2 colunas direita
 					if( have_rows('fx_coluna_2_3b1') ):
-						echo '<div class="col-sm-4 tx_fx_'.$color['value'].'  mt-3 mb-3">';//bootstrap col
+						echo '<div class="col-sm-4 tx_fx_'.($color['value'] ?? '').'  mt-3 mb-3">';//bootstrap col
 							while( have_rows('fx_coluna_2_3b1') ): the_row();
 								//titulo
 								if( get_row_layout() == 'fx_cl1_titulo_2_2' ):
@@ -1234,12 +1234,12 @@ if( have_rows('fx_flex_layout') ):
 									$cab_h = get_sub_field('cabecalho_h_construtor_2_2');
 									$ali_h = get_sub_field('alinhar_h_construtor_2_2');
 									//echo $cab_h['value'];
-									if($cab_h['value'] == 'h1'){
-										echo '<h1 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
-									}elseif ($cab_h['value'] == 'h2') {
-										echo '<h2 class="text-'.$ali_h['value'].' mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h2>';
+									if(($cab_h['value'] ?? '') == 'h1'){
+										echo '<h1 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+									}elseif (($cab_h['value'] ?? '') == 'h2') {
+										echo '<h2 class="text-'.($ali_h['value'] ?? '').' mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h2>';
 									}else{
-										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.$color['value'].'">'.get_sub_field('fx_titulo_2_2').'</h1>';
+										echo '<h1 class="text-left mt-3 mb-3 tx_fx_'.($color['value'] ?? '').'">'.get_sub_field('fx_titulo_2_2').'</h1>';
 									}
 								//editor Wysiwyg
 								elseif( get_row_layout() == 'fx_cl1_editor_2_2' ): 
@@ -1271,7 +1271,7 @@ if( have_rows('fx_flex_layout') ):
 								//imagem responsiva
 								elseif( get_row_layout() == 'fx_cl1_imagem_2_2' ): 
 									$imagem_2_2 = get_sub_field('fx_imagem_2_2');//Pega todos os valores da imagem no array
-									echo '<img class="mt-3 mb-3" src="'.$imagem_2_2['url'].'" width="100%" alt="'.$imagem_2_2['alt'].'">';
+									echo '<img class="mt-3 mb-3" src="'.($imagem_2_2['url'] ?? '').'" width="100%" alt="'.($imagem_2_2['alt'] ?? '').'">';
 								//abas
 								elseif( get_row_layout() == 'fx_cl1_abas_2_2' ): 		
 									if(get_sub_field('fx_abas_2_2'))://repeater
@@ -1335,7 +1335,7 @@ if( have_rows('fx_flex_layout') ):
 												if( get_row_layout() == 'fx_cl1_botao_2_2' ):
 														//loop de botões responsivos
 														echo '<div class="col">';
-															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.$colorbtn['value'].' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
+															echo '<a href="'.get_sub_field('fx_url_botao_2_2').'"><button type="button" class="btn mt-1 mb-1 bt_fx btn-'.($colorbtn['value'] ?? '').' btn-lg btn-block">'.get_sub_field('fx_nome_botao_2_2').'</button></a>';
 														echo '</div>';
 												endif;
 											endwhile;

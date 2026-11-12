@@ -16,7 +16,7 @@ add_action('wp_before_admin_bar_render', 'wp_admin_bar_new_item');
 // Habilitar página de manutenção
 function wp_maintenance_mode() {
 $field = get_field('ativar_manutencao','option');
-$value = $field['value'];
+$value = is_array($field) ? ($field['value'] ?? '') : $field;
 	
 	if (!is_user_logged_in() && $value == 'sim') {
 		wp_die('<img style="display: block; margin: auto;" src="'.get_bloginfo('template_directory').'/images/logo_login.png"><h1 style="text-align: center;">Site em manutenção</h1><br /><p style="text-align: center;">Estamos realizando algumas atualizações.</p><p style="text-align: center;">Por favor volte mais tarde.</p>','Manutenção Acervo Digital');
