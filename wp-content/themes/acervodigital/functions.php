@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/core/compatibility.php';
+
 if ( ! function_exists( 'get_field' ) && ! defined( 'ACF_VERSION' ) ) {
     function get_field( $field_name = '', $post_id = false, $format_value = true ) {
         return null;
@@ -190,7 +192,7 @@ function wpse_58799_remove_parent_category()
 
 {
 
-    if ( 'palavra' != $_GET['taxonomy'] )
+    if ( 'palavra' != ($_GET['taxonomy'] ?? '') )
 
         return;
 

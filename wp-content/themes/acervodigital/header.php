@@ -5,7 +5,7 @@
     <title>Acervo Digital</title>
 	<?php wp_head(); ?>
 	<meta name="google-site-verification" content="V7oNSI9ps5YSYW2RPMTNabTiGYTz-CytFO6LG1ndFBU" />
-	<?php if($_GET['incorporar']):?>
+	<?php if(!empty($_GET['incorporar'])):?>
 		<style>
 			header,
 			footer,

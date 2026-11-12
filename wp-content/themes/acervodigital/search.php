@@ -4,7 +4,9 @@ Template Name: Search Page
 */
 ?>
 
-<?php get_header(); 
+<?php get_header();
+
+$acervo_filters = acervo_query_params(array('modalidade', 'componente', 'ano', 'formab', 'setor', 'idioma', 'alvob'));
 
 function generateRandomString($length = 10) {
     $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -58,37 +60,39 @@ function generateRandomString($length = 10) {
 
 								<form method="get" class="text-left" action="<?php echo esc_url( home_url() ) ?>">
 									
-									<input type="hidden" name="s" value="<?php echo $_GET['s']; ?>">
+									<input type="hidden" name="s" value="<?php echo $acervo_filters['s']; ?>">
 
-									<?php if($_GET['avanc'] && $_GET['avanc'] ){ ?>
+									<?php if($acervo_filters['avanc'] && $acervo_filters['avanc'] ){ ?>
 										<input type="hidden" name="avanc" value="1">					
 									<?php } ?>
 
-									<?php if($_GET['chave'] && $_GET['chave'] != ''): ?>
-										<input type="hidden" name="chave" value="<?php echo $_GET['chave']; ?>">
+									<?php if($acervo_filters['chave'] && $acervo_filters['chave'] != ''): ?>
+										<input type="hidden" name="chave" value="<?php echo $acervo_filters['chave']; ?>">
 									<?php endif; ?>
 
-									<?php if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] ){ ?>
-										<input type="hidden" name="categoria_acervo" value="<?php echo $_GET['categoria_acervo']; ?>">					
+									<?php if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] ){ ?>
+										<input type="hidden" name="categoria_acervo" value="<?php echo $acervo_filters['categoria_acervo']; ?>">
 									<?php } ?>
 
-									<?php if($_GET['palavra'] && $_GET['palavra'] != ''): ?>
-										<input type="hidden" name="palavra" value="<?php echo $_GET['palavra']; ?>">
+									<?php if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''): ?>
+										<input type="hidden" name="palavra" value="<?php echo $acervo_filters['palavra']; ?>">
 									<?php endif; ?>	
 									
-									<?php if($_GET['areab'] && $_GET['areab'] != ''): ?>
+									<?php if($acervo_filters['areab'] && $acervo_filters['areab'] != ''): ?>
 										<input type="hidden" name="area" value="1">
-										<input type="hidden" name="areab" value="<?php echo $_GET['areab']; ?>">
+										<input type="hidden" name="areab" value="<?php echo $acervo_filters['areab']; ?>">
 									<?php endif; ?>
 
-									<?php if($_GET['alvob'] && $_GET['alvob'] != ''): ?>
+									<?php if($acervo_filters['alvob'] && $acervo_filters['alvob'] != ''): ?>
 										<input type="hidden" name="alvo" value="1">
-										<input type="hidden" name="alvob" value="<?php echo $_GET['alvob']; ?>">
+										<?php foreach ($acervo_filters['alvob'] as $acervo_target): ?>
+										<input type="hidden" name="alvob[]" value="<?php echo esc_attr($acervo_target); ?>">
+										<?php endforeach; ?>
 									<?php endif; ?>
 
-									<?php if($_GET['despb'] && $_GET['despb'] != ''): ?>
+									<?php if($acervo_filters['despb'] && $acervo_filters['despb'] != ''): ?>
 										<input type="hidden" name="desp" value="1">
-										<input type="hidden" name="despb" value="<?php echo $_GET['despb']; ?>">
+										<input type="hidden" name="despb" value="<?php echo $acervo_filters['despb']; ?>">
 									<?php endif; ?>
 
 									<div class="panel-group" id="accordion">
@@ -104,119 +108,119 @@ function generateRandomString($length = 10) {
 												<div class="panel-body">
 													<?php
 														$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-														if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+														if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 															$newlink = removeParam($actual_link, 'categoria_acervo');
 
-															$idcateg = $_GET['categoria_acervo'];
+															$idcateg = $acervo_filters['categoria_acervo'];
 															
-															echo "<p><a href='" . $newlink . "'><i class='fa fa-angle-left' aria-hidden='true'></i> " . get_term_by( 'slug', $idcateg, 'categoria_acervo' )->name . "</a></p>";
+															echo "<p><a href='" . $newlink . "'><i class='fa fa-angle-left' aria-hidden='true'></i> " . (get_term_by( 'slug', $idcateg, 'categoria_acervo' )->name ?? '') . "</a></p>";
 														} else {
 															$categorias = array();
 															$args = array(
-																's' => $_GET['s'],
+																's' => $acervo_filters['s'],
 																'posts_per_page' => -1,
 																'tax_query' => array(
 																	'relation' => 'AND',										
 																)
 															);
-															if($_GET['avanc'] && $_GET['avanc'] != ''){
-																if($_GET['modalidade'] && $_GET['modalidade'] ){
+															if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+																if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 																	$args['tax_query'][] = array(
 																			'taxonomy' => 'modalidade',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 																	);									
 																}
 																
-																if($_GET['componente'] && $_GET['componente'] ){
+																if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'componente',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['componente'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 																		
 																	);
 																}
 								
-																if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+																if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'idioma',   // taxonomy name
 																			'field' => 'term_id',           // term_id, slug or name
-																			'terms' => $_GET['idioma'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 																		
 																	);
 																}
 																
-																if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+																if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'setor',   // taxonomy name
 																			'field' => 'term_id',           // term_id, slug or name
-																			'terms' => $_GET['setor'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 																		
 																	);
 																}
 
-																if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+																if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'formacao',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['formab'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 																		
 																	);
 																}
 
-																if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+																if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'promotora',   // taxonomy name
 																			'field' => 'term_id',           // term_id, slug or name
-																			'terms' => $_GET['areab'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 																		
 																	);
 																}
 
-																if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+																if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'publico',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['alvob'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 																		
 																	);
 																}
 								
-																if($_GET['autor'] && $_GET['autor'] != ''){
+																if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'autor',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['autor'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 																		
 																	);
 																}
 								
-																if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+																if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 																	$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-																	$args['meta_value'] = $_GET['ano']; 
+																	$args['meta_value'] = $acervo_filters['ano'];
 																}
 								
-																if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+																if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'categoria_acervo',   // taxonomy name
 																			'field' => 'slug',           // term_id, slug or name
-																			'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 																		
 																	);
 																}
 
-																if($_GET['palavra'] && $_GET['palavra'] != ''){
+																if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 																	$args['tax_query'][] = 	array(
 																			'taxonomy' => 'palavra',   // taxonomy name
 																			'field' => 'palavra',           // term_id, slug or name
-																			'terms' => $_GET['palavra'],                  // term id, term slug or term name
+																			'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 																		
 																	);
 																}
 
-																if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+																if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 																	$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-																	$args['meta_value'] = $_GET['despb']; 
+																	$args['meta_value'] = $acervo_filters['despb'];
 																}
 															}
 															$the_query = new WP_Query( $args ); 
@@ -225,7 +229,7 @@ function generateRandomString($length = 10) {
 
 																while($the_query->have_posts()): $the_query->the_post();
 																	//echo strip_tags (get_the_term_list(get_the_ID(), 'categoria_acervo', '', ' / ', ''));
-																	$term_list = wp_get_post_terms( get_the_ID(), 'categoria_acervo', array( 'fields' => 'slugs' ) );
+																	$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'categoria_acervo', array( 'fields' => 'slugs' ) ));
 																	foreach($term_list as $categoria){
 																		$categorias[] = $categoria;
 																	}
@@ -235,7 +239,7 @@ function generateRandomString($length = 10) {
 															
 															$categorias = array_unique($categorias);								
 															foreach($categorias as $categoria){
-																echo "<p><a href='" . $actual_link . "&categ_acervo=" . $categoria . "'>" . get_term_by( 'slug', $categoria, 'categoria_acervo' )->name . "</a></p>";
+																echo "<p><a href='" . $actual_link . "&categ_acervo=" . $categoria . "'>" . (get_term_by( 'slug', $categoria, 'categoria_acervo' )->name ?? '') . "</a></p>";
 															}
 														}
 														
@@ -247,121 +251,121 @@ function generateRandomString($length = 10) {
 										<?php // Modalidade
 											$modalidades = array();
 											$modalidadeBusca = array();
-											if($_GET['modalidade'] && $_GET['modalidade'] != ''){
-												$modalidadeBusca = $_GET['modalidade'];
+											if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] != ''){
+												$modalidadeBusca = $acervo_filters['modalidade'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'modalidade', array( 'fields' => 'slugs' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'modalidade', array( 'fields' => 'slugs' ) ));
 													foreach($term_list as $modalidade){
 														$modalidades[] = $modalidade;
 													}
@@ -392,7 +396,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='modalidade[]' <?php echo $check; ?> type="checkbox" <?php echo $check; ?> value="<?php echo $modalidade; ?>" id="modalidade" onchange="this.form.submit()">
 																			<label class="form-check-label" for="modalidade">
-																				<?php echo get_term_by( 'slug', $modalidade, 'modalidade' )->name; ?>
+																				<?php echo (get_term_by( 'slug', $modalidade, 'modalidade' )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -407,121 +411,121 @@ function generateRandomString($length = 10) {
 										<?php // Componente
 											$componentes = array();
 											$componenteBusca = array();
-											if($_GET['componente'] && $_GET['componente'] != ''){
-												$componenteBusca = $_GET['componente'];
+											if($acervo_filters['componente'] && $acervo_filters['componente'] != ''){
+												$componenteBusca = $acervo_filters['componente'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'componente', array( 'fields' => 'slugs' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'componente', array( 'fields' => 'slugs' ) ));
 													foreach($term_list as $componente){
 														$componentes[] = $componente;
 													}
@@ -552,7 +556,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='componente[]' type="checkbox" <?php echo $check; ?> value="<?php echo $componente; ?>" id="componente" onchange="this.form.submit()">
 																			<label class="form-check-label" for="componente">
-																				<?php echo get_term_by( 'slug', $componente, 'componente' )->name; ?>
+																				<?php echo (get_term_by( 'slug', $componente, 'componente' )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -567,114 +571,114 @@ function generateRandomString($length = 10) {
 										<?php // Ano
 											$anos = array();
 											$anoBusca = array();
-											if($_GET['ano'] && $_GET['ano'] != ''){
-												$anoBusca = $_GET['ano'];
+											if($acervo_filters['ano'] && $acervo_filters['ano'] != ''){
+												$anoBusca = $acervo_filters['ano'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
@@ -727,121 +731,121 @@ function generateRandomString($length = 10) {
 										<?php // Formacao
 											$formas = array();
 											$formaBusca = array();
-											if($_GET['formab'] && $_GET['formab'] != ''){
-												$formaBusca = $_GET['formab'];
+											if($acervo_filters['formab'] && $acervo_filters['formab'] != ''){
+												$formaBusca = $acervo_filters['formab'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'formacao', array( 'fields' => 'slugs' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'formacao', array( 'fields' => 'slugs' ) ));
 													foreach($term_list as $forma){
 														$formas[] = $forma;
 													}
@@ -874,7 +878,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='formab[]' type="checkbox" <?php echo $check; ?> value="<?php echo $forma; ?>" id="formab" onchange="this.form.submit()">
 																			<label class="form-check-label" for="formab">																				
-																				<?php echo get_term_by( 'slug', $forma, 'formacao' )->name; ?>
+																				<?php echo (get_term_by( 'slug', $forma, 'formacao' )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -889,121 +893,121 @@ function generateRandomString($length = 10) {
 										<?php // Publico Alvo
 											$publico = array();
 											$publicoBusca = array();
-											if($_GET['alvob'] && $_GET['alvob'] != ''){
-												$publicoBusca = $_GET['alvob'];
+											if($acervo_filters['alvob'] && $acervo_filters['alvob'] != ''){
+												$publicoBusca = $acervo_filters['alvob'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'publico', array( 'fields' => 'slugs' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'publico', array( 'fields' => 'slugs' ) ));
 													foreach($term_list as $publi){
 														$publico[] = $publi;
 													}
@@ -1034,7 +1038,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='alvob[]' type="checkbox" <?php echo $check; ?> value="<?php echo $publi; ?>" id="alvob" onchange="this.form.submit()">
 																			<label class="form-check-label" for="alvob">
-																				<?php echo get_term_by( 'slug', $publi, 'publico' )->name; ?>
+																				<?php echo (get_term_by( 'slug', $publi, 'publico' )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -1049,121 +1053,121 @@ function generateRandomString($length = 10) {
 										<?php // Autor
 											$autores = array();
 											$autorBusca = array();
-											if($_GET['autor'] && $_GET['autor'] != ''){
-												$autorBusca = $_GET['autor'];
+											if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
+												$autorBusca = $acervo_filters['autor'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'autor', array( 'fields' => 'ids' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'autor', array( 'fields' => 'ids' ) ));
 													foreach($term_list as $autor){
 														$autores[] = $autor;
 													}
@@ -1192,11 +1196,11 @@ function generateRandomString($length = 10) {
 																		<label for="type">Busque pelo nome:</label>
 																		<select id="type" name="autor" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 																			<?php $project_types = get_categories('taxonomy=autor'); ?>
-																			<option value="<?php echo $_GET["autor"] ?>">
+																			<option value="<?php echo $acervo_filters["autor"] ?>">
 																				<?php echo 'Selecione o autor'; ?>
 																			</option>
 																			<?php foreach ($autores as $autor) { 																				
-																				echo '<option value="'.get_term($autor)->slug.'">'.get_term($autor)->name.'</option>';																					
+																				echo '<option value="'.get_term($autor)->slug.'">'.(get_term($autor)->name ?? '').'</option>';
 																			} ?>
 																		</select>
 																	</div>
@@ -1212,121 +1216,121 @@ function generateRandomString($length = 10) {
 										<?php // Idioma
 											$idiomas = array();
 											$idiomaBusca = array();
-											if($_GET['idioma'] && $_GET['idioma'] != ''){
-												$idiomaBusca = $_GET['idioma'];
+											if($acervo_filters['idioma'] && $acervo_filters['idioma'] != ''){
+												$idiomaBusca = $acervo_filters['idioma'];
 											}
 											
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'idioma', array( 'fields' => 'ids' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'idioma', array( 'fields' => 'ids' ) ));
 													foreach($term_list as $idioma){
 														$idiomas[] = $idioma;
 													}
@@ -1358,7 +1362,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='idioma[]' <?php echo $check; ?> type="checkbox" value="<?php echo $idioma; ?>" id="idioma" onchange="this.form.submit()">
 																			<label class="form-check-label" for="idioma">
-																				<?php echo get_term( $idioma )->name; ?>
+																				<?php echo (get_term( $idioma )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -1373,121 +1377,121 @@ function generateRandomString($length = 10) {
 										<?php // Setor
 											$setores = array();
 											$setorBusca = array();
-											if($_GET['setor'] && $_GET['setor'] != ''){
-												$setorBusca = $_GET['setor'];
+											if($acervo_filters['setor'] && $acervo_filters['setor'] != ''){
+												$setorBusca = $acervo_filters['setor'];
 											}
 											$args = array(
-												's' => $_GET['s'],
+												's' => $acervo_filters['s'],
 												'posts_per_page' => -1,
 												'tax_query' => array(
 													'relation' => 'AND',										
 												)
 											);
-											if($_GET['avanc'] && $_GET['avanc'] != ''){
-												if($_GET['modalidade'] && $_GET['modalidade'] ){
+											if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+												if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 													$args['tax_query'][] = array(
 															'taxonomy' => 'modalidade',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 													);									
 												}
 												
-												if($_GET['componente'] && $_GET['componente'] ){
+												if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'componente',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['componente'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+												if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'idioma',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['idioma'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 														
 													);
 												}
 												
-												if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+												if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'setor',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['setor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+												if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'formacao',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['formab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+												if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'promotora',   // taxonomy name
 															'field' => 'term_id',           // term_id, slug or name
-															'terms' => $_GET['areab'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+												if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'publico',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['alvob'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['autor'] && $_GET['autor'] != ''){
+												if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'autor',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['autor'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 														
 													);
 												}
 				
-												if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+												if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 													$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['ano']; 
+													$args['meta_value'] = $acervo_filters['ano'];
 												}
 				
-												if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+												if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'categoria_acervo',   // taxonomy name
 															'field' => 'slug',           // term_id, slug or name
-															'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['palavra'] && $_GET['palavra'] != ''){
+												if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 													$args['tax_query'][] = 	array(
 															'taxonomy' => 'palavra',   // taxonomy name
 															'field' => 'palavra',           // term_id, slug or name
-															'terms' => $_GET['palavra'],                  // term id, term slug or term name
+															'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 														
 													);
 												}
 
-												if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+												if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 													$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-													$args['meta_value'] = $_GET['despb']; 
+													$args['meta_value'] = $acervo_filters['despb'];
 												}
 											}
 											$the_query = new WP_Query( $args );
 											if($the_query->have_posts()):
 
 												while($the_query->have_posts()): $the_query->the_post();
-													$term_list = wp_get_post_terms( get_the_ID(), 'setor', array( 'fields' => 'ids' ) );
+													$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'setor', array( 'fields' => 'ids' ) ));
 													foreach($term_list as $setor){
 														$setores[] = $setor;
 													}
@@ -1518,7 +1522,7 @@ function generateRandomString($length = 10) {
 																		<div class="form-check">
 																			<input class="form-check-input" name='setor[]' type="checkbox" <?php echo $check; ?> value="<?php echo $setor; ?>" id="setor" onchange="this.form.submit()">
 																			<label class="form-check-label" for="setor">
-																				<?php echo get_term( $setor )->name; ?>
+																				<?php echo (get_term( $setor )->name ?? ''); ?>
 																			</label>
 																		</div>
 																	<?php
@@ -1539,151 +1543,151 @@ function generateRandomString($length = 10) {
 						<div class="col-lg-9 mt-3 mb-5">
 							<?php
 								$countBusca = 0;
-								if($_GET['modalidade'] && $_GET['modalidade'] != ''){									
-									$nMod = count($_GET['modalidade']);
+								if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] != ''){
+									$nMod = count($acervo_filters['modalidade']);
 									$countBusca = $countBusca + $nMod;
 								}
 
-								if($_GET['componente'] && $_GET['componente'] != ''){
-									$nComp = count($_GET['componente']);
+								if($acervo_filters['componente'] && $acervo_filters['componente'] != ''){
+									$nComp = count($acervo_filters['componente']);
 									$countBusca = $countBusca + $nComp;
 								}
 
-								if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != ''){
-									$nAno = count($_GET['ano']);
+								if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != ''){
+									$nAno = count($acervo_filters['ano']);
 									$countBusca = $countBusca + $nAno;
 								}
 
-								if($_GET['autor'] && $_GET['autor'] != ''){
-									$nAut = count($_GET['autor']);
+								if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
+									$nAut = ($acervo_filters['autor'] !== '' ? 1 : 0);
 									$countBusca = $countBusca + $nAut;
 								}
 
-								if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
-									$nFor = count($_GET['formab']);
+								if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
+									$nFor = count($acervo_filters['formab']);
 									$countBusca = $countBusca + $nFor;
 								}
 
-								if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
-									$nSet = count($_GET['setor']);
+								if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
+									$nSet = count($acervo_filters['setor']);
 									$countBusca = $countBusca + $nSet;
 								}
-								if($_GET['alvob'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
-									$nAlv = count($_GET['alvob']);
+								if($acervo_filters['alvob'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
+									$nAlv = count($acervo_filters['alvob']);
 									$countBusca = $countBusca + $nAlv;
 								}
-								if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
-									$nIdi = count($_GET['idioma']);
+								if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
+									$nIdi = count($acervo_filters['idioma']);
 									$countBusca = $countBusca + $nIdi;
 								}
-								if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+								if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 									$countBusca++;
 								}
 								$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
 
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'paged' => $paged,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
 
-								if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 									$args['tax_query'][] = array(
 											'taxonomy' => 'modalidade',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 									);									
 								}
 								
-								if($_GET['componente'] && $_GET['componente'] ){
+								if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'componente',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['componente'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+								if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'idioma',   // taxonomy name
 											'field' => 'term_id',           // term_id, slug or name
-											'terms' => $_GET['idioma'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 										
 									);
 								}
 								
-								if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+								if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'setor',   // taxonomy name
 											'field' => 'term_id',           // term_id, slug or name
-											'terms' => $_GET['setor'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+								if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'formacao',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['formab'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+								if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'promotora',   // taxonomy name
 											'field' => 'term_id',           // term_id, slug or name
-											'terms' => $_GET['areab'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+								if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'publico',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['alvob'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['autor'] && $_GET['autor'] != ''){
+								if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'autor',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['autor'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+								if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 									$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-									$args['meta_value'] = $_GET['ano']; 
+									$args['meta_value'] = $acervo_filters['ano'];
 								}
 
-								if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+								if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 									$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-									$args['meta_value'] = $_GET['despb']; 
+									$args['meta_value'] = $acervo_filters['despb'];
 								}
 
-								if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+								if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'categoria_acervo',   // taxonomy name
 											'field' => 'slug',           // term_id, slug or name
-											'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 										
 									);
 								}
 
-								if($_GET['palavra'] && $_GET['palavra'] != ''){
+								if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 									$args['tax_query'][] = 	array(
 											'taxonomy' => 'palavra',   // taxonomy name
 											'field' => 'palavra',           // term_id, slug or name
-											'terms' => $_GET['palavra'],                  // term id, term slug or term name
+											'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 										
 									);
 								}
@@ -1691,75 +1695,75 @@ function generateRandomString($length = 10) {
 							?>							
 							<div class="row">
 
-								<?php if($_GET['chave'] && $_GET['palavra'] != ''): ?>
+								<?php if($acervo_filters['chave'] && $acervo_filters['palavra'] != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Palavra-chave - <?php echo get_term( $_GET['palavra'] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Palavra-chave - <?php echo (get_term( $acervo_filters['palavra'] )->name ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['categ'] && $_GET['categoria_acervo'] != ''): ?>
+								<?php if($acervo_filters['categ'] && $acervo_filters['categoria_acervo'] != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Categoria - <?php echo get_term_by( 'slug', $_GET['categoria_acervo'], 'categoria_acervo' )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Categoria - <?php echo (get_term_by( 'slug', $acervo_filters['categoria_acervo'], 'categoria_acervo' )->name ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['modal'] && $_GET['modalidade'][0] != ''): ?>
+								<?php if($acervo_filters['modal'] && ($acervo_filters['modalidade'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Modalidade de ensino - <?php echo get_term( $_GET['modalidade'][0] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Modalidade de ensino - <?php echo get_term( ($acervo_filters['modalidade'][0] ?? '') )->name; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['comp'] && $_GET['componente'][0] != ''): ?>
+								<?php if($acervo_filters['comp'] && ($acervo_filters['componente'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Componente curricular - <?php echo get_term( $_GET['componente'][0] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Componente curricular - <?php echo get_term( ($acervo_filters['componente'][0] ?? '') )->name; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['tano'] && $_GET['ano'][0] != ''): ?>
+								<?php if($acervo_filters['tano'] && ($acervo_filters['ano'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Ano - <?php echo $_GET['ano'][0]; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Ano - <?php echo ($acervo_filters['ano'][0] ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['aut'] && $_GET['autor'] != ''): ?>
+								<?php if($acervo_filters['aut'] && $acervo_filters['autor'] != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Autor - <?php echo get_term_by( 'slug', $_GET['autor'], 'autor' )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Autor - <?php echo (get_term_by( 'slug', $acervo_filters['autor'], 'autor' )->name ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['set'] && $_GET['setor'][0] != ''): ?>
+								<?php if($acervo_filters['set'] && ($acervo_filters['setor'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Setor - <?php echo get_term( $_GET['setor'][0] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Setor - <?php echo get_term( ($acervo_filters['setor'][0] ?? '') )->name; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['idi'] && $_GET['idioma'][0] != ''): ?>
+								<?php if($acervo_filters['idi'] && ($acervo_filters['idioma'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Idioma - <?php echo get_term( $_GET['idioma'][0] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Idioma - <?php echo get_term( ($acervo_filters['idioma'][0] ?? '') )->name; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['forma'] && $_GET['formab'][0] != ''): ?>
+								<?php if($acervo_filters['forma'] && ($acervo_filters['formab'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Tipo de Formação - <?php echo get_term_by( 'slug', $_GET['formab'][0], 'formacao' )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Tipo de Formação - <?php echo get_term_by( 'slug', ($acervo_filters['formab'][0] ?? ''), 'formacao' )->name; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['area'] && $_GET['areab'][0] != ''): ?>
+								<?php if($acervo_filters['area'] && ($acervo_filters['areab'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Área promotora - <?php echo get_term( $_GET['areab'] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Área promotora - <?php echo (get_term( $acervo_filters['areab'] )->name ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['desp'] && $_GET['despb'][0] != ''): ?>
+								<?php if($acervo_filters['desp'] && ($acervo_filters['despb'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Nº de despacho de homologação - <?php echo $_GET['despb']; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Nº de despacho de homologação - <?php echo $acervo_filters['despb']; ?></p>
 									</div>
 								<?php endif; ?>
 
-								<?php if($_GET['alvo'] && $_GET['alvob'][0] != ''): ?>
+								<?php if($acervo_filters['alvo'] && ($acervo_filters['alvob'][0] ?? '') != ''): ?>
 									<div class="col-12">
-										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Público alvo - <?php echo get_term( $_GET['alvob'] )->name; ?></p>
+										<p class="search-title"><span class="azul-claro-acervo"><strong>Buscando por:</strong></span> Público alvo - <?php echo (get_term( $acervo_filters['alvob'][0] )->name ?? ''); ?></p>
 									</div>
 								<?php endif; ?>
 
@@ -1787,9 +1791,9 @@ function generateRandomString($length = 10) {
 
 									while($the_query->have_posts()): $the_query->the_post();
 
-									$file = get_field('arquivo_acervo_digital');
+									$file = acervo_file_field(get_field('arquivo_acervo_digital'));
 
-									$stringSeparada = explode(".", $file['filename']);
+									$extension = acervo_file_extension($file['filename'] ?? '');
 									$capa = get_field('substituir_capa_acervo_digital');
 
 									$type = get_post_type();
@@ -1843,25 +1847,25 @@ function generateRandomString($length = 10) {
 													<img src="
 
 														<?php
-														if(!$capa && $stringSeparada[1] == 'pdf'){
-															echo $file['icon']; 
-														}else if(!$capa && ($stringSeparada[1] == 'xlsx' || $stringSeparada[1] == 'xls' || $stringSeparada[1] == 'csv') ){
+														if(!$capa && $extension == 'pdf'){
+															echo ($file['icon'] ?? '');
+														}else if(!$capa && ($extension == 'xlsx' || $extension == 'xls' || $extension == 'csv') ){
 															echo esc_url(
 																get_field('img_excel', 'placeholders')['url'] 
 																?? get_field('img_padrao', 'placeholders')['url']
 															);
-														}else if(!$capa && ($stringSeparada[1] == 'docx' || $stringSeparada[1] == 'doc') ){
+														}else if(!$capa && ($extension == 'docx' || $extension == 'doc') ){
 															echo esc_url(
 																get_field('img_doc', 'placeholders')['url'] 
 																?? get_field('img_padrao', 'placeholders')['url']
 															);
-														}else if(!$capa && ($stringSeparada[1] == 'pptx' || $stringSeparada[1] == 'ppt') ){
+														}else if(!$capa && ($extension == 'pptx' || $extension == 'ppt') ){
 															echo esc_url(
 																get_field('img_doc', 'placeholders')['url'] 
 																?? get_field('img_padrao', 'placeholders')['url']
 															);
-														}else if(!$capa && ($stringSeparada[1] == 'jpg' || $stringSeparada[1] == 'jpeg' || $stringSeparada[1] == 'png' || $stringSeparada[1] == 'gif' || $stringSeparada[1] == 'webp') ){
-															echo $file['url'];
+														}else if(!$capa && ($extension == 'jpg' || $extension == 'jpeg' || $extension == 'png' || $extension == 'gif' || $extension == 'webp') ){
+															echo ($file['url'] ?? '');
 														}else if(get_field('substituir_capa_acervo_digital') != ''){
 															echo get_field('substituir_capa_acervo_digital'); 
 														}else{
@@ -1878,8 +1882,8 @@ function generateRandomString($length = 10) {
 																	$formats = array();
 
 																	foreach($partional as $format){
-																		$format = explode(".", $format);
-																		$formats[] = $format[6];
+																		$format = acervo_file_extension($format);
+																		$formats[] = $format;
 																	}
 
 																	// Remover formatos duplicados
@@ -1887,7 +1891,7 @@ function generateRandomString($length = 10) {
 
 																	echo implode(", ", $formats);														
 																} else {
-																	echo $stringSeparada[1]; 
+																	echo $extension;
 																}
 															?>
 
@@ -1908,10 +1912,10 @@ function generateRandomString($length = 10) {
 														
 														<a href="<?php the_permalink(); ?>" class='btn btn-outline-primary'>Ver detalhes</a>
 																										
-														<?php if($file && !$partial) : ?>
+														<?php if($file && !$partional) : ?>
 															<a href="<?php
-																if($file['url'] != ''){
-																	echo $file['url']; 
+																if(($file['url'] ?? '') != ''){
+																	echo ($file['url'] ?? '');
 																}else{
 																	the_permalink();
 																}
@@ -2007,38 +2011,40 @@ function generateRandomString($length = 10) {
 				<div class="acord-busca my-3">
 					<form method="get" class="text-left" action="<?php echo esc_url( home_url() ) ?>">
 						
-						<input type="hidden" name="s" value="<?php echo $_GET['s']; ?>">
+						<input type="hidden" name="s" value="<?php echo $acervo_filters['s']; ?>">
 
-						<?php if($_GET['avanc'] && $_GET['avanc'] ){ ?>
+						<?php if($acervo_filters['avanc'] && $acervo_filters['avanc'] ){ ?>
 							<input type="hidden" name="avanc" value="1">					
 						<?php } ?>
 
-						<?php if($_GET['chave'] && $_GET['chave'] != ''): ?>
-							<input type="hidden" name="chave" value="<?php echo $_GET['chave']; ?>">
+						<?php if($acervo_filters['chave'] && $acervo_filters['chave'] != ''): ?>
+							<input type="hidden" name="chave" value="<?php echo $acervo_filters['chave']; ?>">
 						<?php endif; ?>
 
-						<?php if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] ){ ?>
-							<input type="hidden" name="categoria_acervo" value="<?php echo $_GET['categoria_acervo']; ?>">					
+						<?php if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] ){ ?>
+							<input type="hidden" name="categoria_acervo" value="<?php echo $acervo_filters['categoria_acervo']; ?>">
 						<?php } ?>
 
-						<?php if($_GET['palavra'] && $_GET['palavra'] != ''): ?>
-							<input type="hidden" name="palavra" value="<?php echo $_GET['palavra']; ?>">
+						<?php if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''): ?>
+							<input type="hidden" name="palavra" value="<?php echo $acervo_filters['palavra']; ?>">
 						<?php endif; ?>							
 						
 
-						<?php if($_GET['areab'] && $_GET['areab'] != ''): ?>
+						<?php if($acervo_filters['areab'] && $acervo_filters['areab'] != ''): ?>
 							<input type="hidden" name="area" value="1">
-							<input type="hidden" name="areab" value="<?php echo $_GET['areab']; ?>">
+							<input type="hidden" name="areab" value="<?php echo $acervo_filters['areab']; ?>">
 						<?php endif; ?>
 
-						<?php if($_GET['alvob'] && $_GET['alvob'] != ''): ?>
+						<?php if($acervo_filters['alvob'] && $acervo_filters['alvob'] != ''): ?>
 							<input type="hidden" name="alvo" value="1">
-							<input type="hidden" name="alvob" value="<?php echo $_GET['alvob']; ?>">
+							<?php foreach ($acervo_filters['alvob'] as $acervo_target): ?>
+							<input type="hidden" name="alvob[]" value="<?php echo esc_attr($acervo_target); ?>">
+							<?php endforeach; ?>
 						<?php endif; ?>
 
-						<?php if($_GET['despb'] && $_GET['despb'] != ''): ?>
+						<?php if($acervo_filters['despb'] && $acervo_filters['despb'] != ''): ?>
 							<input type="hidden" name="desp" value="1">
-							<input type="hidden" name="despb" value="<?php echo $_GET['despb']; ?>">
+							<input type="hidden" name="despb" value="<?php echo $acervo_filters['despb']; ?>">
 						<?php endif; ?>
 						
 
@@ -2055,118 +2061,118 @@ function generateRandomString($length = 10) {
 									<div class="panel-body">
 										<?php
 											$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-											if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+											if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 												$newlink = removeParam($actual_link, 'categoria_acervo');
 
-												$idcateg = $_GET['categoria_acervo'];
-												echo "<p><a href='" . $newlink . "'><i class='fa fa-angle-left' aria-hidden='true'></i> " . get_term( $idcateg )->name . "</a></p>";
+												$idcateg = $acervo_filters['categoria_acervo'];
+												echo "<p><a href='" . $newlink . "'><i class='fa fa-angle-left' aria-hidden='true'></i> " . (get_term( $idcateg )->name ?? '') . "</a></p>";
 											} else {
 												$categorias = array();
 												$args = array(
-													's' => $_GET['s'],
+													's' => $acervo_filters['s'],
 													'posts_per_page' => -1,
 													'tax_query' => array(
 														'relation' => 'AND',										
 													)
 												);
-												if($_GET['avanc'] && $_GET['avanc'] != ''){
-													if($_GET['modalidade'] && $_GET['modalidade'] ){
+												if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+													if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 														$args['tax_query'][] = array(
 																'taxonomy' => 'modalidade',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 														);									
 													}
 													
-													if($_GET['componente'] && $_GET['componente'] ){
+													if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'componente',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['componente'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 															
 														);
 													}
 					
-													if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+													if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'idioma',   // taxonomy name
 																'field' => 'term_id',           // term_id, slug or name
-																'terms' => $_GET['idioma'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 															
 														);
 													}
 													
-													if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+													if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'setor',   // taxonomy name
 																'field' => 'term_id',           // term_id, slug or name
-																'terms' => $_GET['setor'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 															
 														);
 													}
 
-													if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+													if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'formacao',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['formab'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 															
 														);
 													}
 
-													if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+													if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'promotora',   // taxonomy name
 																'field' => 'term_id',           // term_id, slug or name
-																'terms' => $_GET['areab'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 															
 														);
 													}
 
-													if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+													if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'publico',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['alvob'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 															
 														);
 													}
 					
-													if($_GET['autor'] && $_GET['autor'] != ''){
+													if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'autor',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['autor'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 															
 														);
 													}
 					
-													if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+													if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 														$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-														$args['meta_value'] = $_GET['ano']; 
+														$args['meta_value'] = $acervo_filters['ano'];
 													}
 					
-													if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+													if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'categoria_acervo',   // taxonomy name
 																'field' => 'slug',           // term_id, slug or name
-																'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 															
 														);
 													}
 
-													if($_GET['palavra'] && $_GET['palavra'] != ''){
+													if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 														$args['tax_query'][] = 	array(
 																'taxonomy' => 'palavra',   // taxonomy name
 																'field' => 'palavra',           // term_id, slug or name
-																'terms' => $_GET['palavra'],                  // term id, term slug or term name
+																'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 															
 														);
 													}
 
-													if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+													if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 														$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-														$args['meta_value'] = $_GET['despb']; 
+														$args['meta_value'] = $acervo_filters['despb'];
 													}
 												}
 												
@@ -2177,7 +2183,7 @@ function generateRandomString($length = 10) {
 
 													while($the_query->have_posts()): $the_query->the_post();
 														//echo strip_tags (get_the_term_list(get_the_ID(), 'categoria_acervo', '', ' / ', ''));
-														$term_list = wp_get_post_terms( get_the_ID(), 'categoria_acervo', array( 'fields' => 'slugs' ) );
+														$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'categoria_acervo', array( 'fields' => 'slugs' ) ));
 														foreach($term_list as $categoria){
 															$categorias[] = $categoria;
 														}
@@ -2187,7 +2193,7 @@ function generateRandomString($length = 10) {
 												
 												$categorias = array_unique($categorias);								
 												foreach($categorias as $categoria){
-													echo "<p><a href='" . $actual_link . "&categ_acervo=" . $categoria . "'>" . get_term_by( 'slug', $categoria, 'categoria_acervo' )->name . "</a></p>";
+													echo "<p><a href='" . $actual_link . "&categ_acervo=" . $categoria . "'>" . (get_term_by( 'slug', $categoria, 'categoria_acervo' )->name ?? '') . "</a></p>";
 												}
 											}
 											
@@ -2199,121 +2205,121 @@ function generateRandomString($length = 10) {
 							<?php // Modalidade
 								$modalidades = array();
 								$modalidadeBusca = array();
-								if($_GET['modalidade'] && $_GET['modalidade'] != ''){
-									$modalidadeBusca = $_GET['modalidade'];
+								if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] != ''){
+									$modalidadeBusca = $acervo_filters['modalidade'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'modalidade', array( 'fields' => 'ids' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'modalidade', array( 'fields' => 'ids' ) ));
 										foreach($term_list as $modalidade){
 											$modalidades[] = $modalidade;
 										}
@@ -2344,7 +2350,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='modalidade[]' <?php echo $check; ?> type="checkbox" <?php echo $check; ?> value="<?php echo $modalidade; ?>" id="modalidade">
 																<label class="form-check-label" for="modalidade">
-																	<?php echo get_term( $modalidade )->name; ?>
+																	<?php echo (get_term( $modalidade )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php
@@ -2359,121 +2365,121 @@ function generateRandomString($length = 10) {
 							<?php // Componente
 								$componentes = array();
 								$componenteBusca = array();
-								if($_GET['componente'] && $_GET['componente'] != ''){
-									$componenteBusca = $_GET['componente'];
+								if($acervo_filters['componente'] && $acervo_filters['componente'] != ''){
+									$componenteBusca = $acervo_filters['componente'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'componente', array( 'fields' => 'ids' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'componente', array( 'fields' => 'ids' ) ));
 										foreach($term_list as $componente){
 											$componentes[] = $componente;
 										}
@@ -2504,7 +2510,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='componente[]' type="checkbox" <?php echo $check; ?> value="<?php echo $componente; ?>" id="componente">
 																<label class="form-check-label" for="componente">
-																	<?php echo get_term( $componente )->name; ?>
+																	<?php echo (get_term( $componente )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php
@@ -2519,114 +2525,114 @@ function generateRandomString($length = 10) {
 							<?php // Ano
 								$anos = array();
 								$anoBusca = array();
-								if($_GET['ano'] && $_GET['ano'] != ''){
-									$anoBusca = $_GET['ano'];
+								if($acervo_filters['ano'] && $acervo_filters['ano'] != ''){
+									$anoBusca = $acervo_filters['ano'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
@@ -2679,121 +2685,121 @@ function generateRandomString($length = 10) {
 							<?php // Formacao
 								$formas = array();
 								$formaBusca = array();
-								if($_GET['formab'] && $_GET['formab'] != ''){
-									$formaBusca = $_GET['formab'];
+								if($acervo_filters['formab'] && $acervo_filters['formab'] != ''){
+									$formaBusca = $acervo_filters['formab'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'formacao', array( 'fields' => 'ids' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'formacao', array( 'fields' => 'ids' ) ));
 										foreach($term_list as $forma){
 											$formas[] = $forma;
 										}
@@ -2824,7 +2830,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='formab[]' type="checkbox" <?php echo $check; ?> value="<?php echo $forma; ?>" id="formab">
 																<label class="form-check-label" for="formab">
-																	<?php echo get_term( $forma )->name; ?>
+																	<?php echo (get_term( $forma )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php
@@ -2839,121 +2845,121 @@ function generateRandomString($length = 10) {
 							<?php // Publico Alvo
 								$publico = array();
 								$publicoBusca = array();
-								if($_GET['alvob'] && $_GET['alvob'] != ''){
-									$publicoBusca = $_GET['alvob'];
+								if($acervo_filters['alvob'] && $acervo_filters['alvob'] != ''){
+									$publicoBusca = $acervo_filters['alvob'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'publico', array( 'fields' => 'slugs' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'publico', array( 'fields' => 'slugs' ) ));
 										foreach($term_list as $publi){
 											$publico[] = $publi;
 										}
@@ -2984,7 +2990,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='alvob[]' type="checkbox" <?php echo $check; ?> value="<?php echo $publi; ?>" id="alvob">
 																<label class="form-check-label" for="alvob">
-																	<?php echo get_term_by( 'slug', $publi, 'publico' )->name; ?>
+																	<?php echo (get_term_by( 'slug', $publi, 'publico' )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php
@@ -3009,17 +3015,17 @@ function generateRandomString($length = 10) {
 										<label for="type">Busque pelo nome:</label>
 										<select id="type" name="autor" class="selectpicker form-control" data-live-search="true" onchange="form.submit()">
 											<?php $project_types = get_categories('taxonomy=autor'); ?>
-											<option value="<?php echo $_GET["autor"] ?>">
+											<option value="<?php echo $acervo_filters["autor"] ?>">
 												<?php
-												$cat = $_GET["autor"];
+												$cat = $acervo_filters["autor"];
 												$catCorrigida = str_replace('-', ' ', $cat);
-												if($_GET["autor"] != ''){
+												if($acervo_filters["autor"] != ''){
 													echo $catCorrigida;
 												}else{ echo 'Selecione o autor';}  ?>
 										</option>
 											<?php foreach ($project_types as $project_type) { ?>
 												<?php
-													if($project_type->slug != $_GET["autor"]){
+													if($project_type->slug != $acervo_filters["autor"]){
 														echo '<option value="'.$project_type->slug.'">'.$project_type->name.'</option>';
 													}
 												?>
@@ -3032,121 +3038,121 @@ function generateRandomString($length = 10) {
 							<?php // Idioma
 								$idiomas = array();
 								$idiomaBusca = array();
-								if($_GET['idioma'] && $_GET['idioma'] != ''){
-									$idiomaBusca = $_GET['idioma'];
+								if($acervo_filters['idioma'] && $acervo_filters['idioma'] != ''){
+									$idiomaBusca = $acervo_filters['idioma'];
 								}
 								
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'idioma', array( 'fields' => 'ids' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'idioma', array( 'fields' => 'ids' ) ));
 										foreach($term_list as $idioma){
 											$idiomas[] = $idioma;
 										}
@@ -3177,7 +3183,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='idioma[]' <?php echo $check; ?> type="checkbox" value="<?php echo $idioma; ?>" id="idioma">
 																<label class="form-check-label" for="idioma">
-																	<?php echo get_term( $idioma )->name; ?>
+																	<?php echo (get_term( $idioma )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php
@@ -3192,121 +3198,121 @@ function generateRandomString($length = 10) {
 							<?php // Setor
 								$setores = array();
 								$setorBusca = array();
-								if($_GET['setor'] && $_GET['setor'] != ''){
-									$setorBusca = $_GET['setor'];
+								if($acervo_filters['setor'] && $acervo_filters['setor'] != ''){
+									$setorBusca = $acervo_filters['setor'];
 								}
 								$args = array(
-									's' => $_GET['s'],
+									's' => $acervo_filters['s'],
 									'posts_per_page' => -1,
 									'tax_query' => array(
 										'relation' => 'AND',										
 									)
 								);
-								if($_GET['avanc'] && $_GET['avanc'] != ''){
-									if($_GET['modalidade'] && $_GET['modalidade'] ){
+								if($acervo_filters['avanc'] && $acervo_filters['avanc'] != ''){
+									if($acervo_filters['modalidade'] && $acervo_filters['modalidade'] ){
 										$args['tax_query'][] = array(
 												'taxonomy' => 'modalidade',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['modalidade'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['modalidade'],                  // term id, term slug or term name
 										);									
 									}
 									
-									if($_GET['componente'] && $_GET['componente'] ){
+									if($acervo_filters['componente'] && $acervo_filters['componente'] ){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'componente',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['componente'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['componente'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['idioma'] && $_GET['idioma'] != '' && $_GET['idioma'][0] != ''){
+									if($acervo_filters['idioma'] && $acervo_filters['idioma'] != '' && ($acervo_filters['idioma'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'idioma',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['idioma'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['idioma'],                  // term id, term slug or term name
 											
 										);
 									}
 									
-									if($_GET['setor'] && $_GET['setor'] != '' && $_GET['setor'][0] != ''){
+									if($acervo_filters['setor'] && $acervo_filters['setor'] != '' && ($acervo_filters['setor'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'setor',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['setor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['setor'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['formab'] && $_GET['formab'] != '' && $_GET['formab'][0] != ''){
+									if($acervo_filters['formab'] && $acervo_filters['formab'] != '' && ($acervo_filters['formab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'formacao',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['formab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['formab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['area'] && $_GET['areab'] != '' && $_GET['areab'][0] != ''){
+									if($acervo_filters['area'] && $acervo_filters['areab'] != '' && ($acervo_filters['areab'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'promotora',   // taxonomy name
 												'field' => 'term_id',           // term_id, slug or name
-												'terms' => $_GET['areab'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['areab'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['alvo'] && $_GET['alvob'] != '' && $_GET['alvob'][0] != ''){
+									if($acervo_filters['alvo'] && $acervo_filters['alvob'] != '' && ($acervo_filters['alvob'][0] ?? '') != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'publico',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['alvob'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['alvob'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['autor'] && $_GET['autor'] != ''){
+									if($acervo_filters['autor'] && $acervo_filters['autor'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'autor',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['autor'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['autor'],                  // term id, term slug or term name
 											
 										);
 									}
 	
-									if($_GET['ano'] && $_GET['ano'] != '' && $_GET['ano'][0] != '' ){
+									if($acervo_filters['ano'] && $acervo_filters['ano'] != '' && ($acervo_filters['ano'][0] ?? '') != '' ){
 										$args['ano_da_publicacao_acervo_digital'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['ano']; 
+										$args['meta_value'] = $acervo_filters['ano'];
 									}
 	
-									if($_GET['categoria_acervo'] && $_GET['categoria_acervo'] != ''){
+									if($acervo_filters['categoria_acervo'] && $acervo_filters['categoria_acervo'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'categoria_acervo',   // taxonomy name
 												'field' => 'slug',           // term_id, slug or name
-												'terms' => $_GET['categoria_acervo'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['categoria_acervo'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['palavra'] && $_GET['palavra'] != ''){
+									if($acervo_filters['palavra'] && $acervo_filters['palavra'] != ''){
 										$args['tax_query'][] = 	array(
 												'taxonomy' => 'palavra',   // taxonomy name
 												'field' => 'palavra',           // term_id, slug or name
-												'terms' => $_GET['palavra'],                  // term id, term slug or term name
+												'terms' => $acervo_filters['palavra'],                  // term id, term slug or term name
 											
 										);
 									}
 
-									if($_GET['despb'] && $_GET['despb'] != '' && $_GET['despb'][0] != '' ){
+									if($acervo_filters['despb'] && $acervo_filters['despb'] != '' && ($acervo_filters['despb'][0] ?? '') != '' ){
 										$args['numero_de_despacho_de_homologacao'] = '';           // term id, term slug or term name
-										$args['meta_value'] = $_GET['despb']; 
+										$args['meta_value'] = $acervo_filters['despb'];
 									}
 								}
 								$the_query = new WP_Query( $args );
 								if($the_query->have_posts()):
 
 									while($the_query->have_posts()): $the_query->the_post();
-										$term_list = wp_get_post_terms( get_the_ID(), 'setor', array( 'fields' => 'ids' ) );
+										$term_list = acervo_term_list(wp_get_post_terms( get_the_ID(), 'setor', array( 'fields' => 'ids' ) ));
 										foreach($term_list as $setor){
 											$setores[] = $setor;
 										}
@@ -3337,7 +3343,7 @@ function generateRandomString($length = 10) {
 															<div class="form-check">
 																<input class="form-check-input" name='setor[]' type="checkbox" <?php echo $check; ?> value="<?php echo $setor; ?>" id="setor">
 																<label class="form-check-label" for="setor">
-																	<?php echo get_term( $setor )->name; ?>
+																	<?php echo (get_term( $setor )->name ?? ''); ?>
 																</label>
 															</div>
 														<?php

@@ -16,36 +16,10 @@ mkdir -p /run/apache2/modsecurity/tmp
 envsubst < /etc/modsecurity/modsecurity.template > /etc/modsecurity/modsecurity.conf
 chown -R www-data:www-data /run/apache2/modsecurity
 
-addpath () {
-  x="$1"
-  IFS=:
-  set -- $PATH
-  IFS=
-  while test "$#" -gt 0 ; do
-    if test "$1" = "$x" ; then
-      return
-    fi
-    shift
-  done
-  PATH="${x}:$PATH"
-}
-
-if test -z "$PATH" ; then
-  PATH=/bin
+# Mesmo comportamento do entrypoint oficial da imagem php:*-apache
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+  set -- apache2-foreground "$@"
 fi
 
-addpath /bin
-addpath /usr/bin
-addpath /command
-export PATH
-
-# Now we're good: s6-overlay-suexec is accessible via PATH, as are
-# all our binaries.
-# Run preinit as root, then run stage0 as the container's user (can be
-# root, can be a normal user).
-
-exec s6-overlay-suexec \
-  ' /package/admin/s6-overlay-3.1.5.0/libexec/preinit' \
-  '' \
-  /package/admin/s6-overlay-3.1.5.0/libexec/stage0 \
-  "$@"
+exec "$@"

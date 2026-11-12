@@ -1,4 +1,4 @@
-FROM registry.sme.prefeitura.sp.gov.br/wordpress/base:7.4-fpm-apache
+FROM registry.sme.prefeitura.sp.gov.br/wordpress/base:8.3.36-apache-trixie
 
 # sets GID and UID
 ENV PUID=33
@@ -10,6 +10,9 @@ ENV WEBHOME="/var/www/html"
 # Set Apache root folder within $WEBHOME
 # E.g: APACHE_DOCUMENT_ROOT="/public"
 ENV APACHE_DOCUMENT_ROOT=""
+
+# Usado no modsecurity/000-default.conf (antes era definido pela imagem base antiga)
+ENV DOCUMENT_ROOT="/var/www/html"
 
 # Set to "true" to fix permission for whole $WEBHOME
 ENV FIX_WEBHOME_PERMISSION="false"
@@ -45,14 +48,13 @@ ENV AUTO_CREATE_INDEX_FILE="false"
 ENV PHP_MAX_EXECUTION_TIME="120"
 
 # ==========================================================
-
 ## Instalação do APM Agent
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-ARG APM_AGENT_VERSION=1.17.0
+ARG APM_AGENT_VERSION=1.17.1
 
 RUN curl -L -O https://github.com/elastic/apm-agent-php/releases/download/v${APM_AGENT_VERSION}/apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
     && dpkg -i apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
@@ -62,7 +64,7 @@ RUN curl -L -O https://github.com/elastic/apm-agent-php/releases/download/v${APM
 # by using pre-defined Docker's environment variables.
 # Learn more: https://code.shin.company/php#customize-docker-image
 
-COPY phpconf/php.ini "/etc/php/7.4/fpm/php.ini"
+COPY phpconf/php.ini "/usr/local/etc/php/php.ini"
 COPY --chown=www-data:www-data . /var/www/html/
 
 #modsecurity
@@ -73,18 +75,21 @@ COPY modsecurity/modsecurity.template /etc/modsecurity/
 #Arquivo criado via K8S (ConfigMap)
 #COPY modsecurity/location_match.modsecurity.example /etc/apache2/locationmatch/location_match.modsecurity
 COPY modsecurity/docker-php-entrypoint /usr/local/bin/
-RUN find /var/www/html -type d -exec chmod 777 {} \; && find /var/www/html -type f -exec chmod 644 {} \; && chmod 660 /var/www/html/wp-config.php && chmod 664 /var/www/html/.htaccess
-RUN chmod +x /usr/local/bin/docker-php-entrypoint && dos2unix /usr/local/bin/docker-php-entrypoint && sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
-#modsecurity regras execption
+
 RUN mkdir -p /etc/modsecurity/crs/before && mkdir -p /etc/modsecurity/crs/after
 #modsecurity DOS setup
 RUN mkdir -p /etc/modsecurity/crs/dos
 #load crs
 COPY modsecurity/owasp-crs.conf /usr/share/modsecurity-crs/owasp-crs.load
 
-# Adiciona diretório do APM ao open_basedir
-RUN sed -i '/open_basedir\]/ s|$|:/proc/self:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
-
+RUN find /var/www/html -type d -exec chmod 755 {} \; && find /var/www/html -type f -exec chmod 644 {} \; && chmod 660 /var/www/html/wp-config.php && chmod 664 /var/www/html/.htaccess
+RUN chmod +x /usr/local/bin/docker-php-entrypoint && dos2unix /usr/local/bin/docker-php-entrypoint
 RUN rm -Rf phpconf modsecurity
 
+# open_basedir (inclui diretórios do APM)
+RUN echo 'open_basedir = "/var/www:/tmp:/dev/stdout:/proc/self:/opt/elastic"' > /usr/local/etc/php/conf.d/zz-open-basedir.ini
+
+RUN a2enmod remoteip
+
 ENTRYPOINT [ "/usr/local/bin/docker-php-entrypoint" ]
+CMD [ "apache2-foreground" ]

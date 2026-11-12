@@ -99,7 +99,7 @@ add_action( 'wp_enqueue_scripts', 'generate_options_css', 20 ); //Parse the outp
 
 //Gera miniatura para PDF
 function acf_change_icon_on_files ( $icon, $mime, $attachment_id ){ // Display thumbnail instead of document.png
-    if ( strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/upload.php' ) === false && $mime === 'application/pdf' ){
+    if ( strpos( $_SERVER[ 'REQUEST_URI' ] ?? '', '/wp-admin/upload.php' ) === false && $mime === 'application/pdf' ){
         $get_image = wp_get_attachment_image_src ( $attachment_id, 'full' );
         
         if ( $get_image ) {
@@ -121,13 +121,14 @@ add_filter( 'rest_prepare_revision', function( $response, $post ) {
 
 // limita quantidade de categorias na página inicial ACF
 function my_category_validate_value($valid, $value, $field, $input) {
-	if(!$valid) {
+	if($valid !== true) {
 		return $valid;
 	}
-	if(sizeof($value) < 6) {
+	$count = is_array($value) ? count($value) : 0;
+	if($count < 6) {
 		$valid = '6 categorias são obrigatorias';
 	}
-	else if(sizeof($value) > 6) {
+	else if($count > 6) {
 		$valid = 'somente 6 categorias são possíveis';
 	}else {
 		$valid = true;
